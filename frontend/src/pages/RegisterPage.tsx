@@ -8,7 +8,6 @@ import { toast } from "sonner";
 import { register as registerRequest } from "@/api/auth";
 import { useAuth } from "@/auth/useAuth";
 import { normalizeError } from "@/lib/apiError";
-import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
@@ -19,7 +18,6 @@ const schema = z.object({
   email: z.string().email("Enter a valid email"),
   password: z.string().min(6, "Use at least 6 characters"),
 });
-
 type RegisterForm = z.infer<typeof schema>;
 
 export function RegisterPage() {
@@ -42,93 +40,69 @@ export function RegisterPage() {
     mutationFn: (values: RegisterForm) => registerRequest(values),
     onSuccess: (token) => {
       login(token);
-      toast.success("Account created");
       navigate(next, { replace: true });
     },
     onError: (error) => toast.error(normalizeError(error)),
   });
 
   return (
-    <Container className="flex flex-col items-center py-16">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-ink">Create an account</h1>
-        <p className="mt-1 text-sm text-muted">
-          It only takes a moment to get started.
-        </p>
+    <div>
+      <h2 className="text-5xl">Sign up</h2>
+      <p className="mt-3 border-t-2 border-ink pt-3 font-sans text-sm text-muted">
+        Takes a minute. Then the whole catalog opens up.
+      </p>
 
-        <form
-          onSubmit={handleSubmit((values) => mutation.mutate(values))}
-          className="mt-6 space-y-4 rounded-2xl border border-line bg-white p-6"
+      <form
+        onSubmit={handleSubmit((v) => mutation.mutate(v))}
+        className="mt-8 space-y-5"
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="First name" error={errors.firstName?.message}>
+            {(p) => <Input {...p} {...register("firstName")} autoComplete="given-name" />}
+          </Field>
+          <Field label="Last name" error={errors.lastName?.message}>
+            {(p) => <Input {...p} {...register("lastName")} autoComplete="family-name" />}
+          </Field>
+        </div>
+
+        <Field label="Email" error={errors.email?.message}>
+          {(p) => (
+            <Input
+              {...p}
+              {...register("email")}
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+            />
+          )}
+        </Field>
+
+        <Field label="Password" error={errors.password?.message} hint="At least 6 characters.">
+          {(p) => (
+            <Input
+              {...p}
+              {...register("password")}
+              type="password"
+              autoComplete="new-password"
+              placeholder="••••••••"
+            />
+          )}
+        </Field>
+
+        <Button type="submit" size="lg" className="w-full" isLoading={mutation.isPending}>
+          Create account
+        </Button>
+      </form>
+
+      <p className="mt-6 font-sans text-sm text-muted">
+        Already a member?{" "}
+        <Link
+          to={`/login${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`}
+          className="font-semibold text-ink underline decoration-spot decoration-2 underline-offset-4"
         >
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="First name" error={errors.firstName?.message}>
-              {(props) => (
-                <Input
-                  {...props}
-                  {...register("firstName")}
-                  autoComplete="given-name"
-                />
-              )}
-            </Field>
-            <Field label="Last name" error={errors.lastName?.message}>
-              {(props) => (
-                <Input
-                  {...props}
-                  {...register("lastName")}
-                  autoComplete="family-name"
-                />
-              )}
-            </Field>
-          </div>
-
-          <Field label="Email" error={errors.email?.message}>
-            {(props) => (
-              <Input
-                {...props}
-                {...register("email")}
-                type="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-              />
-            )}
-          </Field>
-
-          <Field
-            label="Password"
-            error={errors.password?.message}
-            hint="At least 6 characters."
-          >
-            {(props) => (
-              <Input
-                {...props}
-                {...register("password")}
-                type="password"
-                autoComplete="new-password"
-                placeholder="••••••••"
-              />
-            )}
-          </Field>
-
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            isLoading={mutation.isPending}
-          >
-            Create account
-          </Button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-muted">
-          Already have an account?{" "}
-          <Link
-            to={`/login${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`}
-            className="font-medium text-brand-700 hover:underline"
-          >
-            Log in
-          </Link>
-        </p>
-      </div>
-    </Container>
+          Sign in
+        </Link>
+      </p>
+    </div>
   );
 }

@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import type { CartItem, Product } from "@/types/api";
 import { formatPrice } from "@/lib/currency";
-import { ProductImage } from "@/components/ui/ProductImage";
+import { GeneratedSleeve } from "@/components/ui/GeneratedSleeve";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 
 export function CartLineItem({
@@ -18,52 +18,49 @@ export function CartLineItem({
   onQuantityChange: (quantity: number) => void;
   onRemove: () => void;
 }) {
-  const title = product?.title ?? "Product unavailable";
+  const title = product?.title ?? "Record unavailable";
   const maxQty = Math.max(product?.stock ?? item.quantity, item.quantity);
-  const lineTotal = item.unitPrice * item.quantity;
 
   return (
-    <div className="flex gap-4 py-5">
-      <Link
-        to={`/products/${item.productId}`}
-        className="size-20 shrink-0 overflow-hidden rounded-xl border border-line bg-canvas"
-      >
-        <ProductImage src={product?.image} alt={title} />
+    <div className="grid grid-cols-[4rem_1fr] items-start gap-4 border-b border-rule py-5 last:border-b-0 sm:grid-cols-[4rem_1fr_auto]">
+      <Link to={`/products/${item.productId}`} className="block border border-ink">
+        <GeneratedSleeve
+          compact
+          product={{ _id: item.productId, title, image: product?.image ?? "" }}
+        />
       </Link>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0">
-          <Link
-            to={`/products/${item.productId}`}
-            className="line-clamp-1 text-sm font-medium text-ink hover:underline"
-          >
-            {title}
-          </Link>
-          <p className="mt-0.5 text-xs text-muted">
-            {formatPrice(item.unitPrice)} each
-          </p>
-          <button
-            type="button"
-            onClick={onRemove}
-            disabled={busy}
-            className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-muted hover:text-red-600 disabled:opacity-50"
-          >
-            <Trash2 className="size-3.5" />
-            Remove
-          </button>
-        </div>
+      <div className="min-w-0">
+        <Link
+          to={`/products/${item.productId}`}
+          className="font-sans text-sm font-semibold text-ink hover:underline"
+        >
+          {title}
+        </Link>
+        <p className="mt-0.5 font-sans text-xs text-muted tabular-nums">
+          {formatPrice(item.unitPrice)} each
+        </p>
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={busy}
+          className="mt-2 inline-flex items-center gap-1 font-sans text-xs font-semibold text-muted hover:text-spot-deep disabled:opacity-40"
+        >
+          <X className="size-3.5" />
+          Pull from crate
+        </button>
+      </div>
 
-        <div className="flex items-center gap-4 sm:flex-col sm:items-end">
-          <QuantityStepper
-            value={item.quantity}
-            max={maxQty}
-            disabled={busy}
-            onChange={onQuantityChange}
-          />
-          <p className="text-sm font-semibold text-ink tabular-nums">
-            {formatPrice(lineTotal)}
-          </p>
-        </div>
+      <div className="col-start-2 flex items-center justify-between gap-4 sm:col-start-3 sm:flex-col sm:items-end sm:justify-start">
+        <QuantityStepper
+          value={item.quantity}
+          max={maxQty}
+          disabled={busy}
+          onChange={onQuantityChange}
+        />
+        <p className="font-sans text-sm font-bold tabular-nums text-ink">
+          {formatPrice(item.unitPrice * item.quantity)}
+        </p>
       </div>
     </div>
   );

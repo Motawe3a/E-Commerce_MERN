@@ -4,14 +4,16 @@ import { buttonClass } from "@/components/ui/Button";
 
 export function NotFoundPage() {
   return (
-    <Container className="flex flex-col items-center py-24 text-center">
-      <p className="text-5xl font-bold text-brand-600">404</p>
-      <h1 className="mt-4 text-2xl font-bold text-ink">Page not found</h1>
-      <p className="mt-2 max-w-sm text-sm text-muted">
-        The page you're looking for doesn't exist or has moved.
+    <Container className="py-24">
+      <p className="font-display text-[clamp(5rem,20vw,12rem)] leading-none text-spot">
+        404
       </p>
-      <Link to="/" className={buttonClass({ className: "mt-6" })}>
-        Back home
+      <h1 className="mt-2 text-3xl">You've hit a locked groove</h1>
+      <p className="mt-3 max-w-sm font-sans text-sm text-muted">
+        This page loops nowhere. The record you're after isn't in the racks.
+      </p>
+      <Link to="/" className={buttonClass({ className: "mt-8" })}>
+        Back to the catalog
       </Link>
     </Container>
   );

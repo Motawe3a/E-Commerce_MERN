@@ -1,46 +1,45 @@
 import { Link } from "react-router-dom";
 import type { Product } from "@/types/api";
 import { formatPrice } from "@/lib/currency";
-import { ProductImage } from "@/components/ui/ProductImage";
+import { conditionGrade } from "@/lib/vinyl";
+import { GeneratedSleeve } from "@/components/ui/GeneratedSleeve";
 import { Badge } from "@/components/ui/Badge";
 
 export function ProductCard({ product }: { product: Product }) {
-  const outOfStock = product.stock <= 0;
+  const { grade } = conditionGrade(product.stock);
+  const soldOut = product.stock <= 0;
 
   return (
     <Link
       to={`/products/${product._id}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white transition-shadow hover:shadow-md"
+      className="group block focus-visible:outline-none"
     >
-      <div className="relative aspect-square overflow-hidden bg-canvas">
-        <ProductImage
-          src={product.image}
-          alt={product.title}
-          className="transition-transform duration-300 group-hover:scale-105"
-        />
-        {outOfStock ? (
-          <span className="absolute top-3 left-3">
-            <Badge tone="red">Out of stock</Badge>
-          </span>
-        ) : product.stock <= 5 ? (
-          <span className="absolute top-3 left-3">
-            <Badge tone="amber">Only {product.stock} left</Badge>
-          </span>
-        ) : null}
+      <div className="relative">
+        {/* the record, tucked behind the sleeve */}
+        <div
+          aria-hidden
+          className="grooves absolute top-[8%] left-1/2 aspect-square w-[86%] -translate-x-1/2 rounded-full bg-vinyl transition-transform duration-300 ease-out group-hover:-translate-y-[14%] motion-reduce:transition-none"
+        >
+          <div className="absolute inset-[43%] rounded-full bg-spot" />
+        </div>
+
+        <div className="relative border border-ink transition-transform duration-300 ease-out group-hover:-translate-y-1 motion-reduce:transition-none">
+          <GeneratedSleeve product={product} />
+        </div>
       </div>
 
-      <div className="flex flex-1 flex-col p-4">
-        <h3 className="line-clamp-1 text-sm font-medium text-ink">
-          {product.title}
-        </h3>
-        {product.description && (
-          <p className="mt-1 line-clamp-2 text-xs text-muted">
-            {product.description}
-          </p>
-        )}
-        <p className="mt-3 text-base font-semibold text-ink">
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h3 className="truncate font-sans text-sm font-semibold text-ink group-hover:underline">
+            {product.title}
+          </h3>
+          <div className="mt-1">
+            <Badge tone={soldOut ? "quiet" : "ink"}>{soldOut ? "Sold out" : grade}</Badge>
+          </div>
+        </div>
+        <span className="shrink-0 font-sans text-sm font-bold tabular-nums text-ink">
           {formatPrice(product.price)}
-        </p>
+        </span>
       </div>
     </Link>
   );

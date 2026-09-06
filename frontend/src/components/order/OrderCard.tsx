@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 import type { Order } from "@/types/api";
 import { formatPrice } from "@/lib/currency";
-import { ProductImage } from "@/components/ui/ProductImage";
+import { GeneratedSleeve } from "@/components/ui/GeneratedSleeve";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 
 function formatDate(iso: string): string {
@@ -14,39 +13,44 @@ function formatDate(iso: string): string {
 }
 
 export function OrderCard({ order }: { order: Order }) {
-  const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
+  const count = order.items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
     <Link
       to={`/orders/${order._id}`}
-      className="flex items-center gap-4 rounded-2xl border border-line bg-white p-4 transition-shadow hover:shadow-md"
+      className="flex items-center gap-4 border border-ink bg-card p-4 hover:bg-card/60"
     >
-      <div className="flex -space-x-3">
+      <div className="flex shrink-0">
         {order.items.slice(0, 3).map((item, i) => (
           <div
             key={`${item.productId}-${i}`}
-            className="size-12 overflow-hidden rounded-xl border-2 border-white bg-canvas"
+            className="w-14 border border-ink"
+            style={{ marginLeft: i === 0 ? 0 : "-1.75rem" }}
           >
-            <ProductImage src={item.image} alt={item.title} />
+            <GeneratedSleeve
+              compact
+              product={{ _id: item.productId, title: item.title, image: item.image }}
+            />
           </div>
         ))}
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-xs text-muted">
-            #{order._id.slice(-8)}
+          <span className="font-sans text-xs font-semibold tabular-nums text-muted">
+            LW-{order._id.slice(-6).toUpperCase()}
           </span>
           <OrderStatusBadge status={order.status} />
         </div>
-        <p className="mt-1 text-sm text-ink">
-          {itemCount} item{itemCount === 1 ? "" : "s"} &middot;{" "}
-          {formatPrice(order.total)}
+        <p className="mt-1 font-sans text-sm text-ink tabular-nums">
+          {count} record{count === 1 ? "" : "s"} — {formatPrice(order.total)}
         </p>
-        <p className="text-xs text-muted">{formatDate(order.createdAt)}</p>
+        <p className="font-sans text-xs text-muted">{formatDate(order.createdAt)}</p>
       </div>
 
-      <ChevronRight className="size-5 shrink-0 text-muted" />
+      <span className="shrink-0 font-sans text-sm font-bold tabular-nums text-ink">
+        {formatPrice(order.total)}
+      </span>
     </Link>
   );
 }

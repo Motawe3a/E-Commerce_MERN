@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArrowLeft, Lock, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Disc3 } from "lucide-react";
 import { checkout } from "@/api/orders";
 import { useCart } from "@/hooks/useCart";
 import { normalizeError } from "@/lib/apiError";
@@ -24,7 +24,6 @@ const schema = z.object({
   postalCode: z.string().min(3, "Enter a postal code"),
   country: z.string().min(2, "Enter a country"),
 });
-
 type CheckoutForm = z.infer<typeof schema>;
 
 export function CheckoutPage() {
@@ -44,7 +43,7 @@ export function CheckoutPage() {
       queryClient.setQueryData(queryKeys.cart, null);
       queryClient.invalidateQueries({ queryKey: queryKeys.cart });
       queryClient.invalidateQueries({ queryKey: queryKeys.orders });
-      toast.success("Order placed!");
+      toast.success("Order placed");
       navigate(`/orders/${order._id}`, { replace: true });
     },
     onError: (error) => toast.error(normalizeError(error)),
@@ -52,22 +51,22 @@ export function CheckoutPage() {
 
   if (isLoading) {
     return (
-      <Container className="py-10">
-        <PageLoader label="Loading checkout…" />
+      <Container className="py-14">
+        <PageLoader label="Checking your crate" />
       </Container>
     );
   }
 
   if (!cart || cart.items.length === 0) {
     return (
-      <Container className="py-10">
+      <Container className="py-14">
         <EmptyState
-          icon={ShoppingCart}
+          icon={Disc3}
           title="Nothing to check out"
-          description="Your cart is empty."
+          description="Your crate is empty."
           action={
-            <Link to="/products" className={buttonClass()}>
-              Browse products
+            <Link to="/" className={buttonClass()}>
+              Browse the catalog
             </Link>
           }
         />
@@ -75,67 +74,55 @@ export function CheckoutPage() {
     );
   }
 
-  const onSubmit = (values: CheckoutForm) => {
-    const address = `${values.fullName}, ${values.street}, ${values.city} ${values.postalCode}, ${values.country}`;
-    placeOrder.mutate(address);
-  };
+  const onSubmit = (v: CheckoutForm) =>
+    placeOrder.mutate(
+      `${v.fullName}, ${v.street}, ${v.city} ${v.postalCode}, ${v.country}`,
+    );
 
   return (
-    <Container className="py-10">
+    <Container className="py-10 md:py-14">
       <Link
         to="/cart"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink"
+        className="inline-flex items-center gap-1.5 font-sans text-sm font-semibold text-muted hover:text-ink"
       >
         <ArrowLeft className="size-4" />
-        Back to cart
+        Back to crate
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-ink">Checkout</h1>
+      <h1 className="mt-4 text-[clamp(2.5rem,7vw,4.5rem)]">Checkout</h1>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_20rem]">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <form
           id="checkout-form"
           onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 rounded-2xl border border-line bg-white p-6"
+          className="space-y-5 border-2 border-ink bg-card p-6"
         >
-          <h2 className="text-sm font-semibold text-ink">Shipping address</h2>
+          <h2 className="text-2xl">Ship to</h2>
 
           <Field label="Full name" error={errors.fullName?.message}>
-            {(props) => (
-              <Input
-                {...props}
-                {...register("fullName")}
-                autoComplete="name"
-                placeholder="Ada Lovelace"
-              />
+            {(p) => (
+              <Input {...p} {...register("fullName")} autoComplete="name" placeholder="Ada Lovelace" />
             )}
           </Field>
-
           <Field label="Street address" error={errors.street?.message}>
-            {(props) => (
+            {(p) => (
               <Input
-                {...props}
+                {...p}
                 {...register("street")}
                 autoComplete="street-address"
-                placeholder="12 Analytical Ave"
+                placeholder="12 Groove Ave"
               />
             )}
           </Field>
-
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="City" error={errors.city?.message}>
-              {(props) => (
-                <Input
-                  {...props}
-                  {...register("city")}
-                  autoComplete="address-level2"
-                  placeholder="London"
-                />
+              {(p) => (
+                <Input {...p} {...register("city")} autoComplete="address-level2" placeholder="London" />
               )}
             </Field>
             <Field label="Postal code" error={errors.postalCode?.message}>
-              {(props) => (
+              {(p) => (
                 <Input
-                  {...props}
+                  {...p}
                   {...register("postalCode")}
                   autoComplete="postal-code"
                   placeholder="EC1A 1BB"
@@ -143,11 +130,10 @@ export function CheckoutPage() {
               )}
             </Field>
           </div>
-
           <Field label="Country" error={errors.country?.message}>
-            {(props) => (
+            {(p) => (
               <Input
-                {...props}
+                {...p}
                 {...register("country")}
                 autoComplete="country-name"
                 placeholder="United Kingdom"
@@ -155,9 +141,9 @@ export function CheckoutPage() {
             )}
           </Field>
 
-          <p className="flex items-center gap-1.5 pt-2 text-xs text-muted">
-            <Lock className="size-3.5" />
-            Payment is mocked — placing the order won't charge anything.
+          <p className="font-sans text-xs text-muted">
+            Payment is mocked — placing the order won't charge anything, and no
+            records ship.
           </p>
         </form>
 
@@ -169,8 +155,8 @@ export function CheckoutPage() {
               <Button
                 type="submit"
                 form="checkout-form"
-                className="w-full"
                 size="lg"
+                className="w-full"
                 isLoading={placeOrder.isPending}
               >
                 Place order

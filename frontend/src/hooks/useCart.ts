@@ -7,19 +7,15 @@ import {
   removeCartItem,
   updateCartItem,
 } from "@/api/cart";
-import { useAuth } from "@/auth/useAuth";
 import { normalizeError } from "@/lib/apiError";
 import { queryKeys } from "@/lib/queryClient";
 import type { Cart } from "@/types/api";
 
-/** Active cart for the signed-in user. Disabled (and empty) for guests. */
+/** Active crate for the signed-in member. */
 export function useCart() {
-  const { isAuthenticated } = useAuth();
-
   const query = useQuery({
     queryKey: queryKeys.cart,
     queryFn: getCart,
-    enabled: isAuthenticated,
   });
 
   const itemCount =
@@ -43,7 +39,7 @@ export function useCartMutations() {
       addCartItem(productId, quantity),
     onSuccess: (cart) => {
       onSuccess(cart);
-      toast.success("Added to cart");
+      toast.success("Added to your crate");
     },
     onError,
   });
@@ -59,7 +55,7 @@ export function useCartMutations() {
     mutationFn: (productId: string) => removeCartItem(productId),
     onSuccess: (cart) => {
       onSuccess(cart);
-      toast.success("Removed from cart");
+      toast.success("Pulled from your crate");
     },
     onError,
   });

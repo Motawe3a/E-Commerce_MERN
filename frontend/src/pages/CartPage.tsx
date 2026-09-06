@@ -1,9 +1,8 @@
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ShoppingCart } from "lucide-react";
+import { Disc3 } from "lucide-react";
 import { useCart, useCartMutations } from "@/hooks/useCart";
 import { useProducts } from "@/hooks/useProducts";
-import { useAuth } from "@/auth/useAuth";
 import { Container } from "@/components/layout/Container";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -13,7 +12,6 @@ import { CartSummary } from "@/components/cart/CartSummary";
 
 export function CartPage() {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
   const { data: cart, isLoading, itemCount } = useCart();
   const { data: products } = useProducts();
   const { updateItem, removeItem, clear } = useCartMutations();
@@ -23,44 +21,26 @@ export function CartPage() {
     [products],
   );
 
-  const busy =
-    updateItem.isPending || removeItem.isPending || clear.isPending;
-
-  if (!isAuthenticated) {
-    return (
-      <Container className="py-10">
-        <EmptyState
-          icon={ShoppingCart}
-          title="Your cart is waiting"
-          description="Log in to view your cart and check out."
-          action={
-            <Link to="/login?next=%2Fcart" className={buttonClass()}>
-              Log in
-            </Link>
-          }
-        />
-      </Container>
-    );
-  }
+  const busy = updateItem.isPending || removeItem.isPending || clear.isPending;
 
   if (isLoading) {
     return (
-      <Container className="py-10">
-        <PageLoader label="Loading your cart…" />
+      <Container className="py-14">
+        <PageLoader label="Opening your crate" />
       </Container>
     );
   }
 
   if (!cart || cart.items.length === 0) {
     return (
-      <Container className="py-10">
+      <Container className="py-14">
         <EmptyState
-          icon={ShoppingCart}
-          title="Your cart is empty"
-          description="Browse the catalog and add a few things."
+          icon={Disc3}
+          title="Your crate is empty"
+          description="Go dig through the racks and pull a few records."
           action={
-            <Link to="/products" className={buttonClass()}>
-              Start shopping
+            <Link to="/" className={buttonClass()}>
+              Browse the catalog
             </Link>
           }
         />
@@ -69,29 +49,29 @@ export function CartPage() {
   }
 
   return (
-    <Container className="py-10">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-ink">Your cart</h1>
+    <Container className="py-10 md:py-14">
+      <div className="flex items-end justify-between border-b-2 border-ink pb-5">
+        <h1 className="text-[clamp(2.5rem,7vw,4.5rem)]">Your crate</h1>
         <button
           type="button"
           onClick={() => clear.mutate()}
           disabled={busy}
-          className="text-sm font-medium text-muted hover:text-red-600 disabled:opacity-50"
+          className="font-sans text-sm font-semibold text-muted hover:text-spot-deep disabled:opacity-40"
         >
-          Clear cart
+          Empty it
         </button>
       </div>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_20rem]">
-        <div className="divide-y divide-line rounded-2xl border border-line bg-white px-5">
+      <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,36rem)_19rem] lg:justify-between">
+        <div>
           {cart.items.map((item) => (
             <CartLineItem
               key={item.productId}
               item={item}
               product={productsById.get(item.productId)}
               busy={busy}
-              onQuantityChange={(quantity) =>
-                updateItem.mutate({ productId: item.productId, quantity })
+              onQuantityChange={(q) =>
+                updateItem.mutate({ productId: item.productId, quantity: q })
               }
               onRemove={() => removeItem.mutate(item.productId)}
             />
@@ -104,12 +84,12 @@ export function CartPage() {
             itemCount={itemCount}
             action={
               <Button
-                className="w-full"
                 size="lg"
-                onClick={() => navigate("/checkout")}
+                className="w-full"
                 disabled={busy}
+                onClick={() => navigate("/checkout")}
               >
-                Checkout
+                Check out
               </Button>
             }
           />

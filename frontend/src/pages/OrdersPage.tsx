@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { Package, PackageX } from "lucide-react";
+import { Disc3, Receipt } from "lucide-react";
 import { getOrders } from "@/api/orders";
 import { queryKeys } from "@/lib/queryClient";
 import { Container } from "@/components/layout/Container";
@@ -16,33 +16,35 @@ export function OrdersPage() {
   });
 
   return (
-    <Container className="py-10">
-      <h1 className="text-2xl font-bold text-ink">Your orders</h1>
+    <Container className="py-10 md:py-14">
+      <h1 className="border-b-2 border-ink pb-5 text-[clamp(2.5rem,7vw,4.5rem)]">
+        Order history
+      </h1>
 
-      <div className="mt-6">
+      <div className="mt-8">
         {isLoading ? (
-          <PageLoader label="Loading orders…" />
+          <PageLoader label="Reading the receipts" />
         ) : isError ? (
           <EmptyState
-            icon={PackageX}
+            icon={Receipt}
             title="Couldn't load orders"
-            description="Please refresh to try again."
+            description="Refresh to try again."
           />
         ) : !orders || orders.length === 0 ? (
           <EmptyState
-            icon={Package}
+            icon={Disc3}
             title="No orders yet"
-            description="When you check out, your orders will show up here."
+            description="Once you check out, every order shows up here as a receipt."
             action={
-              <Link to="/products" className={buttonClass()}>
-                Browse products
+              <Link to="/" className={buttonClass()}>
+                Browse the catalog
               </Link>
             }
           />
         ) : (
-          <div className="space-y-3">
-            {orders.map((order) => (
-              <OrderCard key={order._id} order={order} />
+          <div className="grid max-w-3xl gap-3">
+            {orders.map((o) => (
+              <OrderCard key={o._id} order={o} />
             ))}
           </div>
         )}

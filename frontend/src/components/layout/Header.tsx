@@ -1,155 +1,109 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { LogOut, Menu, ShoppingBag, ShoppingCart, User, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "@/auth/useAuth";
 import { useCart } from "@/hooks/useCart";
-import { Button, buttonClass } from "@/components/ui/Button";
-import { Container } from "./Container";
 import { cn } from "@/lib/cn";
+import { Container } from "./Container";
 
-const navLinks = [
-  { to: "/", label: "Home", end: true },
-  { to: "/products", label: "Products", end: false },
+const links = [
+  { to: "/", label: "Catalog", end: true },
+  { to: "/orders", label: "Orders", end: false },
 ];
 
 export function Header() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { itemCount } = useCart();
   const location = useLocation();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  // Close the mobile menu on navigation.
-  useEffect(() => setMenuOpen(false), [location.pathname]);
+  useEffect(() => setOpen(false), [location.pathname]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-white/80 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b-2 border-ink bg-board">
       <Container className="flex h-16 items-center justify-between gap-4">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-ink">
-          <span className="flex size-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-            <ShoppingBag className="size-4" />
-          </span>
-          Storefront
+        <Link to="/" className="font-display text-2xl leading-none tracking-wide">
+          Dead Wax
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
-          {navLinks.map((link) => (
+        <nav className="hidden items-center gap-6 md:flex">
+          {links.map((l) => (
             <NavLink
-              key={link.to}
-              to={link.to}
-              end={link.end}
+              key={l.to}
+              to={l.to}
+              end={l.end}
               className={({ isActive }) =>
                 cn(
-                  "rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-brand-50 text-brand-700"
-                    : "text-muted hover:text-ink",
+                  "font-sans text-sm font-semibold uppercase tracking-[0.06em] underline-offset-8",
+                  isActive ? "text-ink underline decoration-spot decoration-2" : "text-muted hover:text-ink",
                 )
               }
             >
-              {link.label}
+              {l.label}
             </NavLink>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Link
             to="/cart"
-            className="relative flex size-10 items-center justify-center rounded-xl text-muted hover:bg-black/5 hover:text-ink"
-            aria-label={`Cart, ${itemCount} item${itemCount === 1 ? "" : "s"}`}
+            className="font-sans text-sm font-semibold uppercase tracking-[0.06em] text-ink hover:text-spot-deep"
           >
-            <ShoppingCart className="size-5" />
-            {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex min-w-5 items-center justify-center rounded-full bg-brand-600 px-1 text-[11px] font-semibold text-white">
-                {itemCount > 99 ? "99+" : itemCount}
-              </span>
-            )}
+            Crate<span className="text-spot"> ({itemCount})</span>
           </Link>
 
-          <div className="hidden md:block">
-            {isAuthenticated ? (
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5 text-sm text-muted">
-                  <User className="size-4" />
-                  {user?.email}
-                </span>
-                <Button size="sm" variant="secondary" onClick={logout}>
-                  <LogOut className="size-4" />
-                  Log out
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className={buttonClass({ variant: "ghost", size: "sm" })}
-                >
-                  Log in
-                </Link>
-                <Link to="/register" className={buttonClass({ size: "sm" })}>
-                  Sign up
-                </Link>
-              </div>
-            )}
+          <div className="hidden items-center gap-3 md:flex">
+            <span className="hidden max-w-[22ch] truncate font-sans text-xs text-muted lg:inline">
+              {user?.email}
+            </span>
+            <button
+              type="button"
+              onClick={logout}
+              className="border-2 border-ink px-3 py-1.5 font-sans text-xs font-semibold uppercase tracking-[0.06em] hover:bg-ink hover:text-card"
+            >
+              Sign out
+            </button>
           </div>
 
           <button
             type="button"
-            className="flex size-10 items-center justify-center rounded-xl text-muted hover:bg-black/5 md:hidden"
-            aria-label="Toggle menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((open) => !open)}
+            aria-label="Menu"
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+            className="md:hidden"
           >
-            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+            {open ? <X className="size-6" /> : <Menu className="size-6" />}
           </button>
         </div>
       </Container>
 
-      {menuOpen && (
-        <div className="border-t border-line bg-white md:hidden">
+      {open && (
+        <div className="border-t border-rule bg-board md:hidden">
           <Container className="flex flex-col gap-1 py-3">
-            {navLinks.map((link) => (
+            {links.map((l) => (
               <NavLink
-                key={link.to}
-                to={link.to}
-                end={link.end}
+                key={l.to}
+                to={l.to}
+                end={l.end}
                 className={({ isActive }) =>
                   cn(
-                    "rounded-lg px-3 py-2.5 text-sm font-medium",
-                    isActive
-                      ? "bg-brand-50 text-brand-700"
-                      : "text-muted hover:text-ink",
+                    "py-2 font-sans text-sm font-semibold uppercase tracking-[0.06em]",
+                    isActive ? "text-ink" : "text-muted",
                   )
                 }
               >
-                {link.label}
+                {l.label}
               </NavLink>
             ))}
-
-            <div className="mt-2 border-t border-line pt-3">
-              {isAuthenticated ? (
-                <div className="flex flex-col gap-3">
-                  <span className="px-3 text-sm text-muted">{user?.email}</span>
-                  <Button variant="secondary" onClick={logout}>
-                    <LogOut className="size-4" />
-                    Log out
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  <Link
-                    to="/login"
-                    className="rounded-xl border border-line px-3 py-2.5 text-center text-sm font-medium"
-                  >
-                    Log in
-                  </Link>
-                  <Link
-                    to="/register"
-                    className="rounded-xl bg-brand-600 px-3 py-2.5 text-center text-sm font-medium text-white"
-                  >
-                    Sign up
-                  </Link>
-                </div>
-              )}
+            <div className="mt-2 flex items-center justify-between border-t border-rule pt-3">
+              <span className="font-sans text-xs text-muted">{user?.email}</span>
+              <button
+                type="button"
+                onClick={logout}
+                className="border-2 border-ink px-3 py-1.5 font-sans text-xs font-semibold uppercase tracking-[0.06em]"
+              >
+                Sign out
+              </button>
             </div>
           </Container>
         </div>

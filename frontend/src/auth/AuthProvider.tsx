@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   setAuthToken,
@@ -21,6 +22,7 @@ function readStoredToken(): string | null {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [token, setToken] = useState<string | null>(readStoredToken);
 
   const user = useMemo(() => (token ? decodeToken(token) : null), [token]);
@@ -45,7 +47,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setToken(null);
     queryClient.removeQueries({ queryKey: ["cart"] });
     queryClient.removeQueries({ queryKey: ["orders"] });
-  }, [queryClient]);
+    navigate("/login", { replace: true });
+  }, [queryClient, navigate]);
 
   // Keep the axios default header in sync with the current token.
   useEffect(() => {

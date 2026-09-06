@@ -7,5 +7,5 @@ export function Container({
   className?: string;
   children: React.ReactNode;
 }) {
-  return <div className={cn("container-page", className)}>{children}</div>;
+  return <div className={cn("wrap", className)}>{children}</div>;
 }

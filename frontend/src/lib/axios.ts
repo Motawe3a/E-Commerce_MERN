@@ -2,9 +2,13 @@ import axios from "axios";
 
 export const TOKEN_STORAGE_KEY = "ecom_token";
 
-export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3001",
-});
+// VITE_API_URL is baked in at build time; tolerate a trailing slash.
+const API_BASE = (import.meta.env.VITE_API_URL ?? "http://localhost:3001").replace(
+  /\/+$/,
+  "",
+);
+
+export const api = axios.create({ baseURL: API_BASE });
 
 /** Attach or clear the bearer token used for every subsequent request. */
 export function setAuthToken(token: string | null): void {

@@ -1,6 +1,7 @@
-import userModel from "../models/userModel";
+import userModel, { IUser } from "../models/userModel";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { JWT_SECRET } from "../config";
 
 interface RegisterParams {
     firstName: string;
@@ -13,13 +14,13 @@ export const register = async ({ firstName, lastName, email, password }: Registe
     const findUser = await userModel.findOne({ email: email });
 
     if (findUser) {
-        return { data:'User already exists', statusCode: 400 };
+        return { data: 'User already exists', statusCode: 400 };
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUSer = new userModel({ firstName, lastName, email, password: hashedPassword });
-    await newUSer.save();
-    return { data: generateJWT(newUSer), statusCode: 200};
+    const newUser = new userModel({ firstName, lastName, email, password: hashedPassword });
+    await newUser.save();
+    return { data: generateJWT(newUser), statusCode: 200 };
 };
 
 interface LoginParams {
@@ -39,17 +40,14 @@ export const login = async ({ email, password }: LoginParams) => {
         return { data: 'Invalid password', statusCode: 400 };
     }
 
-    return {data: generateJWT({
-        email: findUser.email,
-        firstName: findUser.firstName,
-        lastName: findUser.lastName
-    }), statusCode: 200};
+    return { data: generateJWT(findUser), statusCode: 200 };
 };
 
-const generateJWT = (user: any) => {
+const generateJWT = (user: IUser) => {
     const payload = {
         id: user._id,
-        email: user.email
+        email: user.email,
+        role: user.role
     };
-    return jwt.sign(payload, 'secret', { expiresIn: '24h' });
+    return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' });
 };

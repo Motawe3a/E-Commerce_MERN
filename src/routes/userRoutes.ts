@@ -1,26 +1,25 @@
 import express from "express";
 import { login, register } from "../services/userService";
+import { asyncHandler } from "../middlewares/errorHandler";
 
 const router = express.Router();
 
-router.post("/register", async (_req, res) => {
+router.post("/register", asyncHandler(async (req, res) => {
     const result = await register({
-        firstName: _req.body.firstName,
-        lastName: _req.body.lastName,
-        email: _req.body.email,
-        password: _req.body.password
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        password: req.body.password
     });
-    res.status(result.statusCode).send(result.data)
-});
+    res.status(result.statusCode).send(result.data);
+}));
 
-router.post("/login", async (_req, res) => {
+router.post("/login", asyncHandler(async (req, res) => {
     const result = await login({
-        email: _req.body.email,
-        password: _req.body.password
+        email: req.body.email,
+        password: req.body.password
     });
-    res.status(result.statusCode).send(result.data)
-});
-
-
+    res.status(result.statusCode).send(result.data);
+}));
 
 export default router;

@@ -2,38 +2,32 @@ import { forwardRef } from "react";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-type Variant = "primary" | "secondary" | "ghost" | "danger";
+type Variant = "primary" | "outline" | "ghost";
 type Size = "sm" | "md" | "lg";
 
+const base =
+  "inline-flex items-center justify-center gap-2 font-sans font-semibold uppercase tracking-[0.06em] " +
+  "transition-colors disabled:cursor-not-allowed disabled:opacity-45";
+
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-brand-600 text-white hover:bg-brand-700 disabled:hover:bg-brand-600 shadow-sm",
-  secondary:
-    "bg-white text-ink border border-line hover:bg-canvas disabled:hover:bg-white",
-  ghost: "bg-transparent text-ink hover:bg-black/5",
-  danger: "bg-red-600 text-white hover:bg-red-700 disabled:hover:bg-red-600",
+  primary: "bg-spot text-paper hover:bg-ink hover:text-card",
+  outline: "border-2 border-ink text-ink hover:bg-ink hover:text-card",
+  ghost: "text-ink underline-offset-4 hover:underline",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-9 px-3 text-sm gap-1.5",
-  md: "h-11 px-5 text-sm gap-2",
-  lg: "h-12 px-6 text-base gap-2",
+  sm: "h-9 px-3 text-xs",
+  md: "h-11 px-5 text-sm",
+  lg: "h-13 px-7 text-sm",
 };
 
-/** Shared class string so links can be styled to look like buttons. */
 export function buttonClass(opts?: {
   variant?: Variant;
   size?: Size;
   className?: string;
 }): string {
   const { variant = "primary", size = "md", className } = opts ?? {};
-  return cn(
-    "inline-flex items-center justify-center rounded-xl font-medium transition-colors",
-    "disabled:cursor-not-allowed disabled:opacity-60",
-    variants[variant],
-    sizes[size],
-    className,
-  );
+  return cn(base, variants[variant], sizes[size], className);
 }
 
 export interface ButtonProps

@@ -1,17 +1,19 @@
 import { Link } from "react-router-dom";
+import { useI18n } from "@/i18n/useI18n";
 import { Container } from "@/components/layout/Container";
 import { buttonClass } from "@/components/ui/Button";
 
 export function NotFoundPage() {
+  const { t } = useI18n();
   return (
-    <Container className="flex flex-col items-center py-24 text-center">
-      <p className="text-5xl font-bold text-brand-600">404</p>
-      <h1 className="mt-4 text-2xl font-bold text-ink">Page not found</h1>
-      <p className="mt-2 max-w-sm text-sm text-muted">
-        The page you're looking for doesn't exist or has moved.
+    <Container className="py-24">
+      <p className="font-display text-[clamp(5rem,20vw,12rem)] leading-none text-spot" dir="ltr">
+        {t("notFound.code")}
       </p>
-      <Link to="/" className={buttonClass({ className: "mt-6" })}>
-        Back home
+      <h1 className="mt-2 text-3xl">{t("notFound.title")}</h1>
+      <p className="mt-3 max-w-sm font-sans text-sm text-muted">{t("notFound.body")}</p>
+      <Link to="/" className={buttonClass({ className: "mt-8" })}>
+        {t("notFound.back")}
       </Link>
     </Container>
   );

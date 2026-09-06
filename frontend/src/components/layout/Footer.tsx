@@ -1,11 +1,13 @@
+import { useI18n } from "@/i18n/useI18n";
 import { Container } from "./Container";
 
 export function Footer() {
+  const { t } = useI18n();
   return (
-    <footer className="mt-16 border-t border-line bg-white">
-      <Container className="flex flex-col items-center justify-between gap-2 py-8 text-sm text-muted sm:flex-row">
-        <p>&copy; {new Date().getFullYear()} Storefront. Demo project.</p>
-        <p>Payments are mocked — no real charges.</p>
+    <footer className="mt-20 border-t-2 border-ink">
+      <Container className="flex flex-col gap-1 py-8 font-sans text-xs text-muted sm:flex-row sm:justify-between">
+        <p>{t("footer.line1")}</p>
+        <p>{t("footer.line2")}</p>
       </Container>
     </footer>
   );

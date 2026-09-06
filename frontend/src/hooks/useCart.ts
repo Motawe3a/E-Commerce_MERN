@@ -7,19 +7,16 @@ import {
   removeCartItem,
   updateCartItem,
 } from "@/api/cart";
-import { useAuth } from "@/auth/useAuth";
+import { useI18n } from "@/i18n/useI18n";
 import { normalizeError } from "@/lib/apiError";
 import { queryKeys } from "@/lib/queryClient";
 import type { Cart } from "@/types/api";
 
-/** Active cart for the signed-in user. Disabled (and empty) for guests. */
+/** Active crate for the signed-in member. */
 export function useCart() {
-  const { isAuthenticated } = useAuth();
-
   const query = useQuery({
     queryKey: queryKeys.cart,
     queryFn: getCart,
-    enabled: isAuthenticated,
   });
 
   const itemCount =
@@ -30,12 +27,13 @@ export function useCart() {
 
 export function useCartMutations() {
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   const onSuccess = (cart: Cart) => {
     queryClient.setQueryData(queryKeys.cart, cart);
   };
   const onError = (error: unknown) => {
-    toast.error(normalizeError(error));
+    toast.error(normalizeError(error, t));
   };
 
   const addItem = useMutation({
@@ -43,7 +41,7 @@ export function useCartMutations() {
       addCartItem(productId, quantity),
     onSuccess: (cart) => {
       onSuccess(cart);
-      toast.success("Added to cart");
+      toast.success(t("toast.added"));
     },
     onError,
   });
@@ -59,7 +57,7 @@ export function useCartMutations() {
     mutationFn: (productId: string) => removeCartItem(productId),
     onSuccess: (cart) => {
       onSuccess(cart);
-      toast.success("Removed from cart");
+      toast.success(t("toast.removed"));
     },
     onError,
   });

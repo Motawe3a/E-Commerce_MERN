@@ -1,8 +1,8 @@
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "./useAuth";
 
-/** Gate a route behind authentication, preserving the intended destination. */
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+/** Layout gate: everything under it needs a signed-in user. */
+export function RequireAuth() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
 
@@ -11,5 +11,5 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     return <Navigate to={`/login?next=${next}`} replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }

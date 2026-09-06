@@ -1,52 +1,48 @@
 import { createBrowserRouter } from "react-router-dom";
-import { RootLayout } from "@/components/layout/RootLayout";
-import { ProtectedRoute } from "@/auth/ProtectedRoute";
-import { HomePage } from "@/pages/HomePage";
-import { ProductsPage } from "@/pages/ProductsPage";
+import { AuthRoot } from "@/auth/AuthRoot";
+import { RequireAuth } from "@/auth/RequireAuth";
+import { AuthLayout } from "@/components/layout/AuthLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { LoginPage } from "@/pages/LoginPage";
+import { RegisterPage } from "@/pages/RegisterPage";
+import { CatalogPage } from "@/pages/CatalogPage";
 import { ProductDetailPage } from "@/pages/ProductDetailPage";
 import { CartPage } from "@/pages/CartPage";
 import { CheckoutPage } from "@/pages/CheckoutPage";
-import { LoginPage } from "@/pages/LoginPage";
-import { RegisterPage } from "@/pages/RegisterPage";
 import { OrdersPage } from "@/pages/OrdersPage";
 import { OrderDetailPage } from "@/pages/OrderDetailPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
 export const router = createBrowserRouter([
   {
-    element: <RootLayout />,
+    element: <AuthRoot />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: "products", element: <ProductsPage /> },
-      { path: "products/:id", element: <ProductDetailPage /> },
-      { path: "cart", element: <CartPage /> },
-      { path: "login", element: <LoginPage /> },
-      { path: "register", element: <RegisterPage /> },
+      // Public — the only doors into the shop.
       {
-        path: "checkout",
-        element: (
-          <ProtectedRoute>
-            <CheckoutPage />
-          </ProtectedRoute>
-        ),
+        element: <AuthLayout />,
+        children: [
+          { path: "login", element: <LoginPage /> },
+          { path: "register", element: <RegisterPage /> },
+        ],
       },
+      // Everything else needs a member.
       {
-        path: "orders",
-        element: (
-          <ProtectedRoute>
-            <OrdersPage />
-          </ProtectedRoute>
-        ),
+        element: <RequireAuth />,
+        children: [
+          {
+            element: <AppLayout />,
+            children: [
+              { index: true, element: <CatalogPage /> },
+              { path: "products/:id", element: <ProductDetailPage /> },
+              { path: "cart", element: <CartPage /> },
+              { path: "checkout", element: <CheckoutPage /> },
+              { path: "orders", element: <OrdersPage /> },
+              { path: "orders/:id", element: <OrderDetailPage /> },
+              { path: "*", element: <NotFoundPage /> },
+            ],
+          },
+        ],
       },
-      {
-        path: "orders/:id",
-        element: (
-          <ProtectedRoute>
-            <OrderDetailPage />
-          </ProtectedRoute>
-        ),
-      },
-      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ]);

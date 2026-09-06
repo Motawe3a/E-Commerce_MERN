@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,28 +7,36 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { login as loginRequest } from "@/api/auth";
 import { useAuth } from "@/auth/useAuth";
+import { useI18n } from "@/i18n/useI18n";
 import { normalizeError } from "@/lib/apiError";
-import { Container } from "@/components/layout/Container";
 import { Button } from "@/components/ui/Button";
 import { Field } from "@/components/ui/Field";
 import { Input } from "@/components/ui/Input";
 
-const schema = z.object({
-  email: z.string().email("Enter a valid email"),
-  password: z.string().min(1, "Enter your password"),
-});
-
-type LoginForm = z.infer<typeof schema>;
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
   const { isAuthenticated, login } = useAuth();
+  const { t } = useI18n();
   const next = params.get("next") || "/";
 
   useEffect(() => {
     if (isAuthenticated) navigate(next, { replace: true });
   }, [isAuthenticated, navigate, next]);
+
+  const schema = useMemo(
+    () =>
+      z.object({
+        email: z.string().email(t("auth.emailInvalid")),
+        password: z.string().min(1, t("auth.passwordRequired")),
+      }),
+    [t],
+  );
 
   const {
     register,
@@ -40,68 +48,57 @@ export function LoginPage() {
     mutationFn: (values: LoginForm) => loginRequest(values),
     onSuccess: (token) => {
       login(token);
-      toast.success("Welcome back");
       navigate(next, { replace: true });
     },
-    onError: (error) => toast.error(normalizeError(error)),
+    onError: (error) => toast.error(normalizeError(error, t)),
   });
 
   return (
-    <Container className="flex flex-col items-center py-16">
-      <div className="w-full max-w-sm">
-        <h1 className="text-2xl font-bold text-ink">Log in</h1>
-        <p className="mt-1 text-sm text-muted">
-          Welcome back. Enter your details to continue.
-        </p>
+    <div>
+      <h2 className="text-5xl">{t("login.title")}</h2>
+      <p className="mt-3 border-t-2 border-ink pt-3 font-sans text-sm text-muted">
+        {t("login.blurb")}
+      </p>
 
-        <form
-          onSubmit={handleSubmit((values) => mutation.mutate(values))}
-          className="mt-6 space-y-4 rounded-2xl border border-line bg-white p-6"
+      <form onSubmit={handleSubmit((v) => mutation.mutate(v))} className="mt-8 space-y-5">
+        <Field label={t("auth.emailLabel")} error={errors.email?.message}>
+          {(p) => (
+            <Input
+              {...p}
+              {...register("email")}
+              type="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+            />
+          )}
+        </Field>
+
+        <Field label={t("auth.passwordLabel")} error={errors.password?.message}>
+          {(p) => (
+            <Input
+              {...p}
+              {...register("password")}
+              type="password"
+              autoComplete="current-password"
+              placeholder="••••••••"
+            />
+          )}
+        </Field>
+
+        <Button type="submit" size="lg" className="w-full" isLoading={mutation.isPending}>
+          {t("login.submit")}
+        </Button>
+      </form>
+
+      <p className="mt-6 font-sans text-sm text-muted">
+        {t("login.toRegisterQ")}{" "}
+        <Link
+          to={`/register${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`}
+          className="font-semibold text-ink underline decoration-spot decoration-2 underline-offset-4"
         >
-          <Field label="Email" error={errors.email?.message}>
-            {(props) => (
-              <Input
-                {...props}
-                {...register("email")}
-                type="email"
-                autoComplete="email"
-                placeholder="you@example.com"
-              />
-            )}
-          </Field>
-
-          <Field label="Password" error={errors.password?.message}>
-            {(props) => (
-              <Input
-                {...props}
-                {...register("password")}
-                type="password"
-                autoComplete="current-password"
-                placeholder="••••••••"
-              />
-            )}
-          </Field>
-
-          <Button
-            type="submit"
-            className="w-full"
-            size="lg"
-            isLoading={mutation.isPending}
-          >
-            Log in
-          </Button>
-        </form>
-
-        <p className="mt-4 text-center text-sm text-muted">
-          Don&apos;t have an account?{" "}
-          <Link
-            to={`/register${next !== "/" ? `?next=${encodeURIComponent(next)}` : ""}`}
-            className="font-medium text-brand-700 hover:underline"
-          >
-            Sign up
-          </Link>
-        </p>
-      </div>
-    </Container>
+          {t("login.toRegister")}
+        </Link>
+      </p>
+    </div>
   );
 }

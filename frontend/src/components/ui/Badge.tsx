@@ -1,17 +1,17 @@
 import { cn } from "@/lib/cn";
 
-type Tone = "neutral" | "brand" | "green" | "amber" | "red";
+type Tone = "ink" | "spot" | "blue" | "quiet";
 
 const tones: Record<Tone, string> = {
-  neutral: "bg-slate-100 text-slate-700",
-  brand: "bg-brand-50 text-brand-700",
-  green: "bg-emerald-50 text-emerald-700",
-  amber: "bg-amber-50 text-amber-700",
-  red: "bg-red-50 text-red-700",
+  ink: "border-ink text-ink",
+  spot: "border-spot bg-spot text-paper",
+  blue: "border-blue text-blue",
+  quiet: "border-rule text-muted",
 };
 
+/** Small bordered tag — used for condition grades (NM, VG+) and status. */
 export function Badge({
-  tone = "neutral",
+  tone = "ink",
   className,
   children,
 }: {
@@ -22,7 +22,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+        "inline-flex items-center border px-1.5 py-0.5 font-sans text-[0.6875rem] font-bold tracking-[0.06em] uppercase",
         tones[tone],
         className,
       )}

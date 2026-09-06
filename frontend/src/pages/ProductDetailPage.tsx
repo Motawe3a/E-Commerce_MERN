@@ -1,22 +1,22 @@
 import { useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Check, PackageX, ShoppingCart } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, Check, Disc3 } from "lucide-react";
 import { useProduct } from "@/hooks/useProducts";
 import { useCart, useCartMutations } from "@/hooks/useCart";
-import { useAuth } from "@/auth/useAuth";
+import { useI18n } from "@/i18n/useI18n";
 import { formatPrice } from "@/lib/currency";
+import { recordMeta, conditionGrade } from "@/lib/vinyl";
 import { Container } from "@/components/layout/Container";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { PageLoader } from "@/components/ui/Spinner";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ProductImage } from "@/components/ui/ProductImage";
+import { GeneratedSleeve } from "@/components/ui/GeneratedSleeve";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { t } = useI18n();
   const { data: product, isLoading, isError } = useProduct(id);
   const { data: cart } = useCart();
   const { addItem } = useCartMutations();
@@ -24,22 +24,22 @@ export function ProductDetailPage() {
 
   if (isLoading) {
     return (
-      <Container className="py-10">
-        <PageLoader label="Loading product…" />
+      <Container className="py-14">
+        <PageLoader label={t("product.loading")} />
       </Container>
     );
   }
 
   if (isError || !product) {
     return (
-      <Container className="py-10">
+      <Container className="py-14">
         <EmptyState
-          icon={PackageX}
-          title="Product not found"
-          description="This product may have been removed."
+          icon={Disc3}
+          title={t("product.missingTitle")}
+          description={t("product.missingBody")}
           action={
-            <Link to="/products" className={buttonClass({ variant: "secondary" })}>
-              Back to products
+            <Link to="/" className={buttonClass({ variant: "outline" })}>
+              {t("product.backToCatalog")}
             </Link>
           }
         />
@@ -47,83 +47,104 @@ export function ProductDetailPage() {
     );
   }
 
-  const inCart =
-    cart?.items.find((item) => item.productId === product._id)?.quantity ?? 0;
-  const remaining = product.stock - inCart;
-  const outOfStock = remaining <= 0;
+  const meta = recordMeta(product);
+  const inCrate =
+    cart?.items.find((i) => i.productId === product._id)?.quantity ?? 0;
+  const remaining = product.stock - inCrate;
+  const soldOut = remaining <= 0;
+  const { grade, noteKey, noteVars } = conditionGrade(product.stock);
 
-  function handleAdd() {
-    if (!isAuthenticated) {
-      navigate(`/login?next=${encodeURIComponent(`/products/${product!._id}`)}`);
-      return;
-    }
-    addItem.mutate({ productId: product!._id, quantity });
-  }
+  const specs: [string, React.ReactNode][] = [
+    [t("product.spec.format"), <span dir="ltr">{meta.format}</span>],
+    [t("product.spec.speed"), <span dir="ltr">{meta.speed}</span>],
+    [
+      t("product.spec.condition"),
+      <>
+        <span dir="ltr">{grade}</span> — {t(noteKey, noteVars)}
+      </>,
+    ],
+    [t("product.spec.catNo"), <span dir="ltr">{meta.catalogNo}</span>],
+  ];
 
   return (
-    <Container className="py-10">
+    <Container className="py-10 md:py-14">
       <Link
-        to="/products"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted hover:text-ink"
+        to="/"
+        className="inline-flex items-center gap-1.5 font-sans text-sm font-semibold text-muted hover:text-ink"
       >
-        <ArrowLeft className="size-4" />
-        All products
+        <ArrowLeft className="size-4 rtl:-scale-x-100" />
+        {t("product.back")}
       </Link>
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-3xl border border-line bg-white">
-          <div className="aspect-square">
-            <ProductImage src={product.image} alt={product.title} />
-          </div>
+      <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,25rem)_1fr] lg:gap-16">
+        <div className="h-fit border border-ink">
+          <GeneratedSleeve product={product} priority />
         </div>
 
-        <div className="flex flex-col">
-          <h1 className="text-2xl font-bold text-ink sm:text-3xl">
-            {product.title}
-          </h1>
-          <p className="mt-3 text-2xl font-semibold text-ink">
-            {formatPrice(product.price)}
-          </p>
+        <div>
+          <h1 className="text-[clamp(2rem,5vw,3.25rem)]">{product.title}</h1>
 
-          <div className="mt-3">
-            {outOfStock ? (
-              <Badge tone="red">Out of stock</Badge>
-            ) : product.stock <= 5 ? (
-              <Badge tone="amber">Only {product.stock} left in stock</Badge>
-            ) : (
-              <Badge tone="green">In stock</Badge>
-            )}
+          <div className="mt-4 flex items-center gap-3">
+            <Badge tone={soldOut ? "quiet" : "ink"}>
+              {soldOut ? t("product.soldOut") : <span dir="ltr">{grade}</span>}
+            </Badge>
+            <span
+              className="inline-block bg-spot px-2 py-1 font-sans text-lg font-bold tabular-nums text-card"
+              style={{ transform: "rotate(-2deg)" }}
+            >
+              {formatPrice(product.price)}
+            </span>
           </div>
 
-          {product.description && (
-            <p className="mt-5 text-sm leading-relaxed text-muted">
-              {product.description}
-            </p>
-          )}
+          <dl className="mt-8 border-t border-ink">
+            {specs.map(([k, v]) => (
+              <div
+                key={k}
+                className="flex justify-between gap-6 border-b border-rule py-2.5"
+              >
+                <dt className="font-sans text-sm text-muted">{k}</dt>
+                <dd className="text-end font-sans text-sm font-semibold tabular-nums text-ink">
+                  {v}
+                </dd>
+              </div>
+            ))}
+          </dl>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <QuantityStepper
               value={quantity}
               max={Math.max(remaining, 1)}
-              disabled={outOfStock}
+              disabled={soldOut}
               onChange={setQuantity}
             />
             <Button
-              onClick={handleAdd}
-              isLoading={addItem.isPending}
-              disabled={outOfStock}
               size="lg"
+              disabled={soldOut}
+              isLoading={addItem.isPending}
+              onClick={() => addItem.mutate({ productId: product._id, quantity })}
             >
-              <ShoppingCart className="size-4" />
-              {outOfStock ? "Out of stock" : "Add to cart"}
+              {soldOut ? t("product.soldOut") : t("product.add")}
             </Button>
           </div>
 
-          {inCart > 0 && (
-            <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-emerald-700">
-              <Check className="size-4" />
-              {inCart} already in your cart
+          {inCrate > 0 && (
+            <p className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm text-ink">
+              <Check className="size-4 text-spot" />
+              {t("product.inCrate", { n: inCrate })}
             </p>
+          )}
+
+          <p className="mt-6 max-w-md font-sans text-xs leading-relaxed text-muted">
+            {t("product.gradingNote")}
+          </p>
+
+          {product.description && (
+            <div className="mt-10 border-t border-ink pt-6">
+              <h2 className="text-xl">{t("product.linerNotes")}</h2>
+              <p className="mt-3 max-w-prose font-sans text-sm leading-relaxed text-ink/80">
+                {product.description}
+              </p>
+            </div>
           )}
         </div>
       </div>

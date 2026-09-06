@@ -2,10 +2,28 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%9B%8D%EF%B8%8F%3C/text%3E%3C/svg%3E" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%92%BF%3C/text%3E%3C/svg%3E" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="A minimal storefront demo — browse products, manage a cart, and check out." />
-    <title>Storefront</title>
+    <meta name="description" content="Dead Wax — an independent record shop. New, used & rare vinyl." />
+    <title>Dead Wax</title>
+    <script>
+      // Set theme + language before first paint to avoid a flash.
+      (function () {
+        try {
+          var t = localStorage.getItem("ecom_theme");
+          if (t !== "light" && t !== "dark") {
+            t = matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+          }
+          document.documentElement.dataset.theme = t;
+          var l = localStorage.getItem("ecom_lang");
+          if (l !== "en" && l !== "ar") {
+            l = navigator.language && navigator.language.indexOf("ar") === 0 ? "ar" : "en";
+          }
+          document.documentElement.lang = l;
+          document.documentElement.dir = l === "ar" ? "rtl" : "ltr";
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

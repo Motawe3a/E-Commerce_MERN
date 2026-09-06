@@ -1,4 +1,5 @@
 import { Minus, Plus } from "lucide-react";
+import { useI18n } from "@/i18n/useI18n";
 import { cn } from "@/lib/cn";
 
 export function QuantityStepper({
@@ -16,6 +17,7 @@ export function QuantityStepper({
   disabled?: boolean;
   className?: string;
 }) {
+  const { t } = useI18n();
   const clamp = (n: number) => Math.max(min, Math.min(max, n));
 
   return (
@@ -28,7 +30,7 @@ export function QuantityStepper({
     >
       <button
         type="button"
-        aria-label="One fewer"
+        aria-label={t("qty.less")}
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - 1))}
         className="flex size-10 items-center justify-center text-ink hover:bg-ink hover:text-card disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink"
@@ -40,7 +42,7 @@ export function QuantityStepper({
       </span>
       <button
         type="button"
-        aria-label="One more"
+        aria-label={t("qty.more")}
         disabled={disabled || value >= max}
         onClick={() => onChange(clamp(value + 1))}
         className="flex size-10 items-center justify-center text-ink hover:bg-ink hover:text-card disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-ink"

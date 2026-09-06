@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Check, Disc3 } from "lucide-react";
 import { getOrder } from "@/api/orders";
+import { useI18n } from "@/i18n/useI18n";
 import { queryKeys } from "@/lib/queryClient";
 import { formatPrice } from "@/lib/currency";
 import { Container } from "@/components/layout/Container";
@@ -13,6 +14,7 @@ import { OrderStatusBadge } from "@/components/order/OrderStatusBadge";
 
 export function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { t, lang } = useI18n();
   const { data: order, isLoading, isError } = useQuery({
     queryKey: queryKeys.order(id ?? ""),
     queryFn: () => getOrder(id as string),
@@ -22,7 +24,7 @@ export function OrderDetailPage() {
   if (isLoading) {
     return (
       <Container className="py-14">
-        <PageLoader label="Pulling the receipt" />
+        <PageLoader label={t("order.loading")} />
       </Container>
     );
   }
@@ -32,11 +34,11 @@ export function OrderDetailPage() {
       <Container className="py-14">
         <EmptyState
           icon={Disc3}
-          title="Order not found"
-          description="We can't find this order on your account."
+          title={t("order.missingTitle")}
+          description={t("order.missingBody")}
           action={
             <Link to="/orders" className={buttonClass({ variant: "outline" })}>
-              Back to orders
+              {t("order.backToOrders")}
             </Link>
           }
         />
@@ -44,10 +46,10 @@ export function OrderDetailPage() {
     );
   }
 
-  const placedOn = new Date(order.createdAt).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
+  const placedOn = new Date(order.createdAt).toLocaleString(
+    lang === "ar" ? "ar" : "en",
+    { dateStyle: "medium", timeStyle: "short" },
+  );
 
   return (
     <Container className="py-10 md:py-14">
@@ -55,20 +57,22 @@ export function OrderDetailPage() {
         to="/orders"
         className="inline-flex items-center gap-1.5 font-sans text-sm font-semibold text-muted hover:text-ink"
       >
-        <ArrowLeft className="size-4" />
-        Order history
+        <ArrowLeft className="size-4 rtl:-scale-x-100" />
+        {t("order.back")}
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 border-b-2 border-ink pb-5">
-        <h1 className="text-[clamp(2rem,6vw,3.5rem)]">
+        <h1 className="text-[clamp(2rem,6vw,3.5rem)]" dir="ltr">
           LW-{order._id.slice(-6).toUpperCase()}
         </h1>
         <OrderStatusBadge status={order.status} />
       </div>
-      <p className="mt-2 font-sans text-sm text-muted">Placed {placedOn}</p>
+      <p className="mt-2 font-sans text-sm text-muted">
+        {t("order.placedOn", { date: placedOn })}
+      </p>
       <p className="mt-3 inline-flex items-center gap-1.5 border border-ink px-2 py-1 font-sans text-xs font-semibold text-ink">
         <Check className="size-3.5 text-spot" />
-        Payment {order.paymentStatus}
+        {t("order.payment", { status: t("status.paid") })}
       </p>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -88,7 +92,10 @@ export function OrderDetailPage() {
                 <div>
                   <p className="font-sans text-sm font-semibold text-ink">{item.title}</p>
                   <p className="mt-0.5 font-sans text-xs text-muted tabular-nums">
-                    {formatPrice(item.unitPrice)} × {item.quantity}
+                    {t("order.lineQty", {
+                      price: formatPrice(item.unitPrice),
+                      n: item.quantity,
+                    })}
                   </p>
                 </div>
                 <p className="font-sans text-sm font-bold tabular-nums text-ink">
@@ -102,14 +109,14 @@ export function OrderDetailPage() {
         <div className="space-y-4">
           <div className="border-2 border-ink bg-card p-5">
             <div className="flex justify-between">
-              <span className="font-display text-xl">Paid</span>
+              <span className="font-display text-xl">{t("order.paid")}</span>
               <span className="font-display text-xl tabular-nums">
                 {formatPrice(order.total)}
               </span>
             </div>
           </div>
           <div className="border border-ink bg-card p-5">
-            <h2 className="text-lg">Shipped to</h2>
+            <h2 className="text-lg">{t("order.shippedTo")}</h2>
             <p className="mt-2 font-sans text-sm text-muted">{order.address}</p>
           </div>
         </div>

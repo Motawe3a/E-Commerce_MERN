@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Check, Disc3 } from "lucide-react";
 import { useProduct } from "@/hooks/useProducts";
 import { useCart, useCartMutations } from "@/hooks/useCart";
+import { useI18n } from "@/i18n/useI18n";
 import { formatPrice } from "@/lib/currency";
 import { recordMeta, conditionGrade } from "@/lib/vinyl";
 import { Container } from "@/components/layout/Container";
@@ -15,6 +16,7 @@ import { QuantityStepper } from "@/components/ui/QuantityStepper";
 
 export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useI18n();
   const { data: product, isLoading, isError } = useProduct(id);
   const { data: cart } = useCart();
   const { addItem } = useCartMutations();
@@ -23,7 +25,7 @@ export function ProductDetailPage() {
   if (isLoading) {
     return (
       <Container className="py-14">
-        <PageLoader label="Pulling the record" />
+        <PageLoader label={t("product.loading")} />
       </Container>
     );
   }
@@ -33,11 +35,11 @@ export function ProductDetailPage() {
       <Container className="py-14">
         <EmptyState
           icon={Disc3}
-          title="Not in the racks"
-          description="This record isn't in our system. It may have sold or been pulled."
+          title={t("product.missingTitle")}
+          description={t("product.missingBody")}
           action={
             <Link to="/" className={buttonClass({ variant: "outline" })}>
-              Back to catalog
+              {t("product.backToCatalog")}
             </Link>
           }
         />
@@ -50,13 +52,18 @@ export function ProductDetailPage() {
     cart?.items.find((i) => i.productId === product._id)?.quantity ?? 0;
   const remaining = product.stock - inCrate;
   const soldOut = remaining <= 0;
-  const { grade, note } = conditionGrade(product.stock);
+  const { grade, noteKey, noteVars } = conditionGrade(product.stock);
 
-  const specs = [
-    ["Format", meta.format],
-    ["Speed", meta.speed],
-    ["Condition", `${grade} — ${note}`],
-    ["Catalog no.", meta.catalogNo],
+  const specs: [string, React.ReactNode][] = [
+    [t("product.spec.format"), <span dir="ltr">{meta.format}</span>],
+    [t("product.spec.speed"), <span dir="ltr">{meta.speed}</span>],
+    [
+      t("product.spec.condition"),
+      <>
+        <span dir="ltr">{grade}</span> — {t(noteKey, noteVars)}
+      </>,
+    ],
+    [t("product.spec.catNo"), <span dir="ltr">{meta.catalogNo}</span>],
   ];
 
   return (
@@ -65,8 +72,8 @@ export function ProductDetailPage() {
         to="/"
         className="inline-flex items-center gap-1.5 font-sans text-sm font-semibold text-muted hover:text-ink"
       >
-        <ArrowLeft className="size-4" />
-        Catalog
+        <ArrowLeft className="size-4 rtl:-scale-x-100" />
+        {t("product.back")}
       </Link>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-[minmax(0,25rem)_1fr] lg:gap-16">
@@ -78,7 +85,9 @@ export function ProductDetailPage() {
           <h1 className="text-[clamp(2rem,5vw,3.25rem)]">{product.title}</h1>
 
           <div className="mt-4 flex items-center gap-3">
-            <Badge tone={soldOut ? "quiet" : "ink"}>{soldOut ? "Sold out" : grade}</Badge>
+            <Badge tone={soldOut ? "quiet" : "ink"}>
+              {soldOut ? t("product.soldOut") : <span dir="ltr">{grade}</span>}
+            </Badge>
             <span
               className="inline-block bg-spot px-2 py-1 font-sans text-lg font-bold tabular-nums text-card"
               style={{ transform: "rotate(-2deg)" }}
@@ -89,9 +98,12 @@ export function ProductDetailPage() {
 
           <dl className="mt-8 border-t border-ink">
             {specs.map(([k, v]) => (
-              <div key={k} className="flex justify-between gap-6 border-b border-rule py-2.5">
+              <div
+                key={k}
+                className="flex justify-between gap-6 border-b border-rule py-2.5"
+              >
                 <dt className="font-sans text-sm text-muted">{k}</dt>
-                <dd className="text-right font-sans text-sm font-semibold tabular-nums text-ink">
+                <dd className="text-end font-sans text-sm font-semibold tabular-nums text-ink">
                   {v}
                 </dd>
               </div>
@@ -111,25 +123,24 @@ export function ProductDetailPage() {
               isLoading={addItem.isPending}
               onClick={() => addItem.mutate({ productId: product._id, quantity })}
             >
-              {soldOut ? "Sold out" : "Add to crate"}
+              {soldOut ? t("product.soldOut") : t("product.add")}
             </Button>
           </div>
 
           {inCrate > 0 && (
             <p className="mt-3 inline-flex items-center gap-1.5 font-sans text-sm text-ink">
               <Check className="size-4 text-spot" />
-              {inCrate} in your crate
+              {t("product.inCrate", { n: inCrate })}
             </p>
           )}
 
           <p className="mt-6 max-w-md font-sans text-xs leading-relaxed text-muted">
-            Every record is hand-graded and play-tested. VG+ means light surface
-            marks that don't touch the sound. Ships in 3–5 days.
+            {t("product.gradingNote")}
           </p>
 
           {product.description && (
             <div className="mt-10 border-t border-ink pt-6">
-              <h2 className="text-xl">Liner notes</h2>
+              <h2 className="text-xl">{t("product.linerNotes")}</h2>
               <p className="mt-3 max-w-prose font-sans text-sm leading-relaxed text-ink/80">
                 {product.description}
               </p>

@@ -10,7 +10,7 @@ const base =
   "transition-colors disabled:cursor-not-allowed disabled:opacity-45";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-spot text-card hover:bg-ink",
+  primary: "bg-spot text-paper hover:bg-ink hover:text-card",
   outline: "border-2 border-ink text-ink hover:bg-ink hover:text-card",
   ghost: "text-ink underline-offset-4 hover:underline",
 };

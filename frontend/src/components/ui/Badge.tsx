@@ -4,7 +4,7 @@ type Tone = "ink" | "spot" | "blue" | "quiet";
 
 const tones: Record<Tone, string> = {
   ink: "border-ink text-ink",
-  spot: "border-spot bg-spot text-card",
+  spot: "border-spot bg-spot text-paper",
   blue: "border-blue text-blue",
   quiet: "border-rule text-muted",
 };

@@ -1,19 +1,17 @@
 import { Link } from "react-router-dom";
 import type { Order } from "@/types/api";
 import { formatPrice } from "@/lib/currency";
+import { useI18n } from "@/i18n/useI18n";
 import { GeneratedSleeve } from "@/components/ui/GeneratedSleeve";
 import { OrderStatusBadge } from "./OrderStatusBadge";
 
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
 export function OrderCard({ order }: { order: Order }) {
+  const { t, lang } = useI18n();
   const count = order.items.reduce((sum, i) => sum + i.quantity, 0);
+  const date = new Date(order.createdAt).toLocaleDateString(
+    lang === "ar" ? "ar" : "en",
+    { year: "numeric", month: "short", day: "numeric" },
+  );
 
   return (
     <Link
@@ -25,7 +23,7 @@ export function OrderCard({ order }: { order: Order }) {
           <div
             key={`${item.productId}-${i}`}
             className="w-14 border border-ink"
-            style={{ marginLeft: i === 0 ? 0 : "-1.75rem" }}
+            style={{ marginInlineStart: i === 0 ? 0 : "-1.75rem" }}
           >
             <GeneratedSleeve
               compact
@@ -37,15 +35,18 @@ export function OrderCard({ order }: { order: Order }) {
 
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="font-sans text-xs font-semibold tabular-nums text-muted">
+          <span className="font-sans text-xs font-semibold tabular-nums text-muted" dir="ltr">
             LW-{order._id.slice(-6).toUpperCase()}
           </span>
           <OrderStatusBadge status={order.status} />
         </div>
         <p className="mt-1 font-sans text-sm text-ink tabular-nums">
-          {count} record{count === 1 ? "" : "s"} — {formatPrice(order.total)}
+          {t(count === 1 ? "orders.recordLine" : "orders.recordsLine", {
+            n: count,
+            price: formatPrice(order.total),
+          })}
         </p>
-        <p className="font-sans text-xs text-muted">{formatDate(order.createdAt)}</p>
+        <p className="font-sans text-xs text-muted">{date}</p>
       </div>
 
       <span className="shrink-0 font-sans text-sm font-bold tabular-nums text-ink">

@@ -3,12 +3,17 @@
 @import "@fontsource/archivo/500.css";
 @import "@fontsource/archivo/600.css";
 @import "@fontsource/archivo/700.css";
+@import "@fontsource/cairo/400.css";
+@import "@fontsource/cairo/600.css";
+@import "@fontsource/cairo/700.css";
+@import "@fontsource/cairo/900.css";
 @import "tailwindcss";
 
 /*
   DEAD WAX — an independent record shop.
   Screenprinted-sleeve palette: ink on oat board, one hot vermilion spot.
-  No cream, no serif, no drop shadows, no gradients, hard corners.
+  Light + dark themes (data-theme on <html>); Arabic (lang="ar") swaps type to
+  Cairo and neutralises letter-spacing so the script joins correctly.
 */
 @theme {
   --font-display: "Anton", "Arial Narrow", "Helvetica Neue", sans-serif;
@@ -17,6 +22,8 @@
   --color-ink: #1b1a16;
   --color-board: #dedbce;
   --color-card: #f1efe6;
+  /* Fixed light — text on the always-dark surfaces (spot red, vinyl black). */
+  --color-paper: #f4f1e6;
   --color-spot: #e0301d;
   --color-spot-deep: #b3230f;
   --color-vinyl: #121210;
@@ -25,6 +32,23 @@
   --color-muted: #6d6858;
 
   --radius: 0px;
+}
+
+:root[data-theme="dark"] {
+  --color-ink: #ece7d8;
+  --color-board: #16130d;
+  --color-card: #221e15;
+  --color-spot: #ec3b26;
+  --color-spot-deep: #f5745f;
+  --color-vinyl: #0c0b09;
+  --color-blue: #7f9de0;
+  --color-rule: #4a4231;
+  --color-muted: #9a9078;
+}
+
+:root:lang(ar) {
+  --font-display: "Cairo", "Anton", sans-serif;
+  --font-sans: "Cairo", "Archivo", ui-sans-serif, sans-serif;
 }
 
 @layer base {
@@ -44,9 +68,20 @@
     text-transform: uppercase;
   }
 
+  /* Arabic: Cairo wants weight + air; letter-spacing must not break joining. */
+  :lang(ar) h1, :lang(ar) h2, :lang(ar) h3, :lang(ar) h4 {
+    font-weight: 800;
+    letter-spacing: normal;
+    line-height: 1.2;
+    text-transform: none;
+  }
+  :lang(ar) * {
+    letter-spacing: 0 !important;
+  }
+
   ::selection {
     background: var(--color-spot);
-    color: var(--color-card);
+    color: var(--color-paper);
   }
 
   :where(a, button, input, select, textarea):focus-visible {
@@ -66,12 +101,12 @@
     .wrap { padding-inline: 2rem; }
   }
 
-  /* Concentric-groove motif for the record disc. */
+  /* Concentric-groove motif — light hairlines on the always-dark disc. */
   .grooves {
     background-image: repeating-radial-gradient(
       circle at center,
       transparent 0 3px,
-      color-mix(in srgb, var(--color-card) 8%, transparent) 3px 4px
+      rgba(240, 238, 229, 0.08) 3px 4px
     );
   }
 }

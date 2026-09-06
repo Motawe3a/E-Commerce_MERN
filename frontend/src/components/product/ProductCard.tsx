@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import type { Product } from "@/types/api";
 import { formatPrice } from "@/lib/currency";
 import { conditionGrade } from "@/lib/vinyl";
+import { useI18n } from "@/i18n/useI18n";
 import { GeneratedSleeve } from "@/components/ui/GeneratedSleeve";
 import { Badge } from "@/components/ui/Badge";
 
 export function ProductCard({ product }: { product: Product }) {
+  const { t } = useI18n();
   const { grade } = conditionGrade(product.stock);
   const soldOut = product.stock <= 0;
 
@@ -34,7 +36,9 @@ export function ProductCard({ product }: { product: Product }) {
             {product.title}
           </h3>
           <div className="mt-1">
-            <Badge tone={soldOut ? "quiet" : "ink"}>{soldOut ? "Sold out" : grade}</Badge>
+            <Badge tone={soldOut ? "quiet" : "ink"}>
+              {soldOut ? t("product.soldOut") : <span dir="ltr">{grade}</span>}
+            </Badge>
           </div>
         </div>
         <span className="shrink-0 font-sans text-sm font-bold tabular-nums text-ink">

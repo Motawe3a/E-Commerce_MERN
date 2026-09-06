@@ -1,4 +1,5 @@
 import type { Product } from "@/types/api";
+import type { TKey } from "@/i18n/dict";
 
 /**
  * The catalog has no real cover art or press data, so we derive a stable,
@@ -48,10 +49,18 @@ export function recordMeta(product: Pick<Product, "_id">): RecordMeta {
   };
 }
 
-/** Sleeve condition grade, standing in for real stock levels. */
-export function conditionGrade(stock: number): { grade: string; note: string } {
-  if (stock <= 0) return { grade: "—", note: "Out of stock" };
-  if (stock === 1) return { grade: "NM", note: "Last copy" };
-  if (stock <= 4) return { grade: "VG+", note: `${stock} copies in the bin` };
-  return { grade: "VG+", note: "In stock" };
+/**
+ * Sleeve condition grade, standing in for real stock levels. Returns a
+ * translation key for the note so the caller can localise it.
+ */
+export function conditionGrade(stock: number): {
+  grade: string;
+  noteKey: TKey;
+  noteVars?: { n: number };
+} {
+  if (stock <= 0) return { grade: "—", noteKey: "cond.outOfStock" };
+  if (stock === 1) return { grade: "NM", noteKey: "cond.lastCopy" };
+  if (stock <= 4)
+    return { grade: "VG+", noteKey: "cond.fewLeft", noteVars: { n: stock } };
+  return { grade: "VG+", noteKey: "cond.inStock" };
 }

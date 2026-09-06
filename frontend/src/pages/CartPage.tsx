@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Disc3 } from "lucide-react";
 import { useCart, useCartMutations } from "@/hooks/useCart";
 import { useProducts } from "@/hooks/useProducts";
+import { useI18n } from "@/i18n/useI18n";
 import { Container } from "@/components/layout/Container";
 import { Button, buttonClass } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -12,6 +13,7 @@ import { CartSummary } from "@/components/cart/CartSummary";
 
 export function CartPage() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const { data: cart, isLoading, itemCount } = useCart();
   const { data: products } = useProducts();
   const { updateItem, removeItem, clear } = useCartMutations();
@@ -26,7 +28,7 @@ export function CartPage() {
   if (isLoading) {
     return (
       <Container className="py-14">
-        <PageLoader label="Opening your crate" />
+        <PageLoader label={t("cart.loading")} />
       </Container>
     );
   }
@@ -36,11 +38,11 @@ export function CartPage() {
       <Container className="py-14">
         <EmptyState
           icon={Disc3}
-          title="Your crate is empty"
-          description="Go dig through the racks and pull a few records."
+          title={t("cart.emptyTitle")}
+          description={t("cart.emptyBody")}
           action={
             <Link to="/" className={buttonClass()}>
-              Browse the catalog
+              {t("cart.browse")}
             </Link>
           }
         />
@@ -51,14 +53,14 @@ export function CartPage() {
   return (
     <Container className="py-10 md:py-14">
       <div className="flex items-end justify-between border-b-2 border-ink pb-5">
-        <h1 className="text-[clamp(2.5rem,7vw,4.5rem)]">Your crate</h1>
+        <h1 className="text-[clamp(2.5rem,7vw,4.5rem)]">{t("cart.title")}</h1>
         <button
           type="button"
           onClick={() => clear.mutate()}
           disabled={busy}
           className="font-sans text-sm font-semibold text-muted hover:text-spot-deep disabled:opacity-40"
         >
-          Empty it
+          {t("cart.empty")}
         </button>
       </div>
 
@@ -89,7 +91,7 @@ export function CartPage() {
                 disabled={busy}
                 onClick={() => navigate("/checkout")}
               >
-                Check out
+                {t("cart.checkout")}
               </Button>
             }
           />

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import type { CartItem, Product } from "@/types/api";
 import { formatPrice } from "@/lib/currency";
+import { useI18n } from "@/i18n/useI18n";
 import { GeneratedSleeve } from "@/components/ui/GeneratedSleeve";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 
@@ -18,7 +19,8 @@ export function CartLineItem({
   onQuantityChange: (quantity: number) => void;
   onRemove: () => void;
 }) {
-  const title = product?.title ?? "Record unavailable";
+  const { t } = useI18n();
+  const title = product?.title ?? t("cart.unavailable");
   const maxQty = Math.max(product?.stock ?? item.quantity, item.quantity);
 
   return (
@@ -38,7 +40,7 @@ export function CartLineItem({
           {title}
         </Link>
         <p className="mt-0.5 font-sans text-xs text-muted tabular-nums">
-          {formatPrice(item.unitPrice)} each
+          {t("cart.each", { price: formatPrice(item.unitPrice) })}
         </p>
         <button
           type="button"
@@ -47,7 +49,7 @@ export function CartLineItem({
           className="mt-2 inline-flex items-center gap-1 font-sans text-xs font-semibold text-muted hover:text-spot-deep disabled:opacity-40"
         >
           <X className="size-3.5" />
-          Pull from crate
+          {t("cart.remove")}
         </button>
       </div>
 

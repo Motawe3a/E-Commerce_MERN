@@ -13,36 +13,40 @@ import { OrdersPage } from "@/pages/OrdersPage";
 import { OrderDetailPage } from "@/pages/OrderDetailPage";
 import { NotFoundPage } from "@/pages/NotFoundPage";
 
-export const router = createBrowserRouter([
-  {
-    element: <AuthRoot />,
-    children: [
-      // Public — the only doors into the shop.
-      {
-        element: <AuthLayout />,
-        children: [
-          { path: "login", element: <LoginPage /> },
-          { path: "register", element: <RegisterPage /> },
-        ],
-      },
-      // Everything else needs a member.
-      {
-        element: <RequireAuth />,
-        children: [
-          {
-            element: <AppLayout />,
-            children: [
-              { index: true, element: <CatalogPage /> },
-              { path: "products/:id", element: <ProductDetailPage /> },
-              { path: "cart", element: <CartPage /> },
-              { path: "checkout", element: <CheckoutPage /> },
-              { path: "orders", element: <OrdersPage /> },
-              { path: "orders/:id", element: <OrderDetailPage /> },
-              { path: "*", element: <NotFoundPage /> },
-            ],
-          },
-        ],
-      },
-    ],
-  },
-]);
+export const router = createBrowserRouter(
+  [
+    {
+      element: <AuthRoot />,
+      children: [
+        // Public — the only doors into the shop.
+        {
+          element: <AuthLayout />,
+          children: [
+            { path: "login", element: <LoginPage /> },
+            { path: "register", element: <RegisterPage /> },
+          ],
+        },
+        // Everything else needs a member.
+        {
+          element: <RequireAuth />,
+          children: [
+            {
+              element: <AppLayout />,
+              children: [
+                { index: true, element: <CatalogPage /> },
+                { path: "products/:id", element: <ProductDetailPage /> },
+                { path: "cart", element: <CartPage /> },
+                { path: "checkout", element: <CheckoutPage /> },
+                { path: "orders", element: <OrdersPage /> },
+                { path: "orders/:id", element: <OrderDetailPage /> },
+                { path: "*", element: <NotFoundPage /> },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ],
+  // Vite injects the base path so deep links work under /E-Commerce_MERN/.
+  { basename: import.meta.env.BASE_URL },
+);

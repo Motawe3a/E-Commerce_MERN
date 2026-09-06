@@ -11,7 +11,7 @@
     "moduleResolution": "node",
     "target": "esnext",
     "esModuleInterop": true,
-    "types": [],
+    "types": ["node"],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -44,5 +44,9 @@
     "skipLibCheck": true
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "ts-node": {
+    // Load ambient type declarations (src/types/express.d.ts) that are not imported anywhere.
+    "files": true
+  }
 }

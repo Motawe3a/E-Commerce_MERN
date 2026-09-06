@@ -1,7 +1,8 @@
 import "dotenv/config";
 import express from "express";
+import cors from "cors";
 import mongoose from "mongoose";
-import { MONGO_URI, PORT } from "./config";
+import { CLIENT_URL, MONGO_URI, PORT } from "./config";
 import userRoute from "./routes/userRoutes";
 import productRoute from "./routes/productRoutes";
 import cartRoute from "./routes/cartRoutes";
@@ -12,6 +13,7 @@ import { errorHandler, notFound } from "./middlewares/errorHandler";
 const app = express();
 
 // Middleware
+app.use(cors({ origin: CLIENT_URL }));
 app.use(express.json());
 
 // Routes

@@ -7,3 +7,6 @@ export const MONGO_URI =
     process.env.MONGO_URI || "mongodb://localhost:27017/ecommerce";
 
 export const JWT_SECRET = process.env.JWT_SECRET || "dev-insecure-secret";
+
+// Origin allowed to call this API from a browser (the frontend dev server).
+export const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
